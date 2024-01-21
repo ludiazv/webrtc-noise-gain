@@ -463,7 +463,7 @@ elif machine in ("armv7", "armv7l"):
     ]
     if have_neon:
         # Raspberry Pi 3/4
-        machine_cflags += ["-DWEBRTC_HAS_NEON", "-mfpu=neon"]
+        machine_cflags += ["-DWEBRTC_HAS_NEON", "-O3", "-march=armv7-a", "-mfpu=neon-vfpv4", "-funsafe-math-optimizations"]
         common_audio_sources += [
             "fir_filter_neon.cc",
             "resampler/sinc_resampler_neon.cc",
