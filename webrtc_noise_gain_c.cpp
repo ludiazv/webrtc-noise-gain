@@ -12,15 +12,16 @@ private:
   webrtc::StreamConfig stream_config;
 
 public:
-  AudioProcessor(int auto_gain, int noise_suppression,float preamp);
+  AudioProcessor(int auto_gain, int noise_suppression,float preamp,int vad);
   ~AudioProcessor();
 
   AudioProcessResult_t Process10ms(int16_t *samples,int16_t *samples_out);
+  void Reset();
 };
 
 // auto_gain: 0 = disabled, max 31
 // noise_suppression: 0 = disabled, max 4
-AudioProcessor::AudioProcessor(int auto_gain, int noise_suppression,float preamp)
+AudioProcessor::AudioProcessor(int auto_gain, int noise_suppression,float preamp,int vad)
     : stream_config(16000, 1, false) {
   this->apm = webrtc::AudioProcessingBuilder().Create();
 
@@ -38,7 +39,7 @@ AudioProcessor::AudioProcessor(int auto_gain, int noise_suppression,float preamp
   }
 
   this->audio_config.high_pass_filter.enabled = true;
-  this->audio_config.voice_detection.enabled = true;
+  this->audio_config.voice_detection.enabled = (vad != 0) ? true : false;
 
   if (noise_suppression > 0) {
     this->audio_config.noise_suppression.enabled = true;
@@ -68,20 +69,24 @@ AudioProcessResult_t AudioProcessor::Process10ms(int16_t *samples,int16_t *sampl
 }
 
 AudioProcessor::~AudioProcessor() { delete this->apm; }
+AudioProcessor::Reset()           { this->apm->Initialize(); }
 
 // ----------------------------------------------------------------------------
 // PUBLIC C API WRAPPER
 //
 
-AudioProcessor_t AudioProcessorCreate(int auto_gain, int noise_supression,float preamp) {
+AudioProcessor_t AudioProcessorCreate(int auto_gain, int noise_supression,float preamp,int vad) {
   
  try {
-  auto ap=new AudioProcessor(auto_gain,noise_supression,preamp);
+  auto ap=new AudioProcessor(auto_gain,noise_supression,preamp,vad);
   return (AudioProcessor_t)ap;
  } catch(...) {
     return NULL;
  }
 
+}
+void AudioProcessorReset(AudioProcessor_t a) {
+  if(a) reinterpret_cast<AudioProcessor *>(a)->Reset();   
 }
 
 void AudioProcessorDelete(AudioProcessor_t a) {
