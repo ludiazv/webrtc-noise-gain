@@ -21,6 +21,7 @@ public:
 
 // auto_gain: 0 = disabled, max 31
 // noise_suppression: 0 = disabled, max 4
+// vad 0= disabled , 1= enabled
 AudioProcessor::AudioProcessor(int auto_gain, int noise_suppression,float preamp,int vad)
     : stream_config(16000, 1, false) {
   this->apm = webrtc::AudioProcessingBuilder().Create();
@@ -69,7 +70,7 @@ AudioProcessResult_t AudioProcessor::Process10ms(int16_t *samples,int16_t *sampl
 }
 
 AudioProcessor::~AudioProcessor() { delete this->apm; }
-AudioProcessor::Reset()           { this->apm->Initialize(); }
+void AudioProcessor::Reset()      { this->apm->Initialize(); }
 
 // ----------------------------------------------------------------------------
 // PUBLIC C API WRAPPER
