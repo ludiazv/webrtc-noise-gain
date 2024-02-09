@@ -22,13 +22,14 @@ public:
 // auto_gain: 0 = disabled, max 31
 // noise_suppression: 0 = disabled, max 4
 // vad 0= disabled , 1= enabled
+// preamp: float scale factor 1.0=disabled
 AudioProcessor::AudioProcessor(int auto_gain, int noise_suppression,float preamp,int vad)
     : stream_config(16000, 1, false) {
   this->apm = webrtc::AudioProcessingBuilder().Create();
 
   this->audio_config.echo_canceller.enabled = false;
 
-  if (preamp != 0 ) {
+  if (preamp != 1.0 ) {
     this->audio_config.pre_amplifier.enabled = true;
     this->audio_config.pre_amplifier.fixed_gain_factor = preamp;
   }
